@@ -1,0 +1,6 @@
+This repository includes patches against Dovecot based on code distributed
+by Apple, Inc. through opensource.apple.com. See COPYING.APPLE for licence
+terms.
+
+Everything else is LGPLv2.1 (see COPYING.LGPL) unless otherwise mentioned
+at the beginning of the file.
