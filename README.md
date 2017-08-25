@@ -4,7 +4,7 @@ Apple push notifications for Dovecot.
 
 This repository contains the following components:
 
-* A patch against Dovecot 2.2.29.1 that adds Apple push support. This is based
+* A patch against Dovecot 2.2 that adds Apple push support. This is based
 on Apple's own open-source implementation. The patch adds XAPPLEPUSHSERVICE
 support to Dovecot, and a push-notification plugin "push_notify".
 * pushnotify.pl, a simple push-notification agent that receives messages from
