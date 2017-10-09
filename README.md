@@ -19,8 +19,10 @@ an Apple macOS server.
 
 Dovecot configuration:
 
-mail_plugins = $mail_plugins push_notify 
+protocol lda { 
+  mail_plugins = $mail_plugins push_notify 
+}
 (or use inotify.pl)
 
-aps_topic = aps_topic = com.apple.mail.XServer.xxxxxx
+aps_topic = com.apple.mail.XServer.xxxxxx
 (should match UID field in push certificate)

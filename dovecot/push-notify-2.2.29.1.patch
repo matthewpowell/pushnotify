@@ -1106,7 +1106,7 @@ diff -Naur dovecot-2.2.29.1/src/plugins/push-notify/push-notify-plugin.c dovecot
 +#include <sys/socket.h>
 +#include <sys/unistd.h>
 +
-+const char *push_notify_plugin_version = DOVECOT_VERSION;
++const char *push_notify_plugin_version = DOVECOT_ABI_VERSION;
 +
 +static deliver_hook_func_t *next_deliver_mail;
 +struct et_list *_et_list = NULL;
