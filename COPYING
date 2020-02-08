@@ -2,5 +2,9 @@ This repository includes patches against Dovecot based on code distributed
 by Apple, Inc. through opensource.apple.com. See COPYING.APPLE for licence
 terms.
 
+This repository includes a Perl module based on code developed by Tooru
+Tsurukawa. It is free software; you can resdistribute it and/or modify it
+under the same terms as Perl itself.
+
 Everything else is LGPLv2.1 (see COPYING.LGPL) unless otherwise mentioned
 at the beginning of the file.
