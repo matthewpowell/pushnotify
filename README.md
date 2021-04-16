@@ -43,13 +43,13 @@ extension in `/usr/local/share/ca-certificates`, then run
 `update-ca-certificates` as `root`. These instructions are specific to
 Debian, but the same basic approach should work on other distributions.
 
-# A note about Mojave and iOS 12
+# A note about recent macOS and iOS releases
 
-macOS 10.14 no longer includes the Mail server component and cannot be used
-to generate a suitable push certificate. Although 10.14 uses push notifications
-for device management, it appears that iOS mail will not accept notifications
-that do not use the com.apple.mail topic.
+macOS 10.14 and later no longer include the Mail server component and cannot be
+used to generate a suitable push certificate. Although later versions use push
+notifications for device management, it appears that iOS mail will not accept
+notifications that do not use the com.apple.mail topic.
 
-Push notifications continue to work on iOS 12 and 13, using a certificate
+Push notifications continue to work on iOS 12 and later, using a certificate
 generated on macOS 10.13 or earlier.
 
