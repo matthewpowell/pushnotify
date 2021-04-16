@@ -38,7 +38,7 @@ APNS API. This results in "certificate verify failed" messages in the log and
 a failure to deliver push notifications.
 
 To re-establish trust, you can obtain the root certificate from
-[https://www.geotrust.com/resources/root-certificates/]. Save with a `.crt`
+https://www.geotrust.com/resources/root-certificates/. Save with a `.crt`
 extension in `/usr/local/share/ca-certificates`, then run
 `update-ca-certificates` as `root`. These instructions are specific to
 Debian, but the same basic approach should work on other distributions.
