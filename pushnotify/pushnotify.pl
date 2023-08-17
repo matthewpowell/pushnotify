@@ -5,7 +5,7 @@ use lib '/usr/local/lib/pushnotify';
 
 use Privileges::Drop;
 use IO::Socket::UNIX qw( SOCK_DGRAM SOMAXCONN );
-use Sys::Syslog qw( openlog syslog LOG_INFO );
+use Sys::Syslog qw( openlog syslog LOG_INFO LOG_WARNING );
 use Net::APNS::SimpleCert;
 
 sub save_devices;
@@ -18,6 +18,8 @@ my $devicepath = '/var/local/pushnotify/devices';
 my $apns_cert = '/usr/local/lib/pushnotify/pushnotify.pem';
 # APNS key (might be the same as $apns_cert)
 my $apns_key = $apns_cert;
+# How long before device registrations expire
+my $expire_time = 86400*3;
 
 # Read in the list of registered devices.
 my %devices;
@@ -34,10 +36,11 @@ if (open DEVICES, $devicepath) {
 unlink $sockpath;
 umask (0111);
 my $socket = IO::Socket::UNIX->new(
-	Type  => SOCK_DGRAM,
-	Local => $sockpath,
-	Listen => SOMAXCONN,
-) or die("Can't create server socket: $!\n");
+   Type   => SOCK_DGRAM,
+   Local  => $sockpath,
+   Listen => SOMAXCONN,
+)
+   or die("Can't create server socket: $!\n");
 
 drop_privileges('dovecot');
 
@@ -55,6 +58,24 @@ while(1)
 
 	my ($junk, $username, $aps_acct_id, $aps_dev_token, $aps_sub_topic) = split /\0+/, $data;
 
+	# Validate input
+	unless ($username =~ /^[a-z][-a-z0-9_]*$/) {
+		syslog (LOG_WARNING, "Reject invalid username $username");
+		next;
+	}
+	unless ($aps_acct_id =~ /^[-a-f0-9]*$/i) {
+		syslog (LOG_WARNING, "Reject invalid aps_acct_id $aps_acct_id");
+		next;
+	}
+	unless ($aps_dev_token =~ /^[a-f0-9]*$/i) {
+		syslog (LOG_WARNING, "Reject invalid aps_dev_token $aps_dev_token");
+		next;
+	}
+	unless ($aps_sub_topic =~ /^[.a-z]*$/) {
+		syslog (LOG_WARNING, "Reject invalid aps_sub_topic $aps_sub_topic");
+		next;
+	}
+
 	if ($aps_acct_id) {
 		$aps_dev_token = lc($aps_dev_token);
 
@@ -71,8 +92,15 @@ while(1)
 			# User has at least one device registered
 
 			# Do the push notification
+			my @unregister;
 			foreach (@{$devices{$username}}) {
 				my ($aps_acct_id, $aps_dev_token, $aps_sub_topic, $time) = split /,/;
+				# Expire the registration if it is stale
+				if ((time - $time) > $expire_time) {
+					syslog(LOG_INFO, "Expire device $aps_dev_token for $username");
+					push @unregister, $aps_dev_token;
+					next;
+				}
 				syslog(LOG_INFO, "Send notification to $aps_dev_token for $username");
 				eval {
 					$apns->prepare (
@@ -104,6 +132,15 @@ while(1)
 					$apns->notify;
 				}	
 			}
+			# Remove registrations that have expired
+			if (@unregister > 0) {
+				foreach my $aps_dev_token (@unregister) {
+					syslog(LOG_INFO, "Unregister device $aps_dev_token");
+					@{$devices{$username}} = grep {!/$aps_dev_token/} @{$devices{$username}};
+				}
+				save_devices;
+			}
+
 		}
 	}
 }
